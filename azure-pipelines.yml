@@ -39,7 +39,7 @@ steps:
   inputs:
     scriptSource: 'inline'
     script: |
-      print('Hello world 1')
+      print($(hello))
       print('Hello world 2')
 
 - script: |
