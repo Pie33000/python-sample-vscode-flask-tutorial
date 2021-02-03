@@ -34,10 +34,36 @@ steps:
     pip install pytest pytest-azurepipelines
     pytest
   displayName: 'pytest'
-  
+
 - task: PythonScript@0
   inputs:
     scriptSource: 'inline'
     script: |
       print('Hello world 1')
       print('Hello world 2')
+
+- script: |
+    pip install pytest
+    pip install pytest-cov
+    pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
+  displayName: 'Test with pytest'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/test-*.xml'
+    testRunTitle: 'Publish test results for Python $(python.version)'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+
+- task: TwineAuthenticate@0
+  inputs:
+    artifactFeed: '<Azure Artifacts feed name>'
+    pythonUploadServiceConnection: '<twine service connection from external organization>'
+
+- script: |
+   twine upload -r "<feed or service connection name>" --config-file $(PYPIRC_PATH) <package path/files>
