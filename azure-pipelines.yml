@@ -39,5 +39,5 @@ steps:
   inputs:
     scriptSource: 'inline'
     script: |
-      print($(hello))
+      print('$(hello)')
       print('Hello world 2')
